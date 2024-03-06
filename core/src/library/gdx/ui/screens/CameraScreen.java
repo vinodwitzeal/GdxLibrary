@@ -1,5 +1,6 @@
 package library.gdx.ui.screens;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -18,10 +19,14 @@ import library.gdx.handlers.permissions.Permission;
 import library.gdx.handlers.permissions.PermissionHandler;
 import library.gdx.handlers.permissions.PermissionResult;
 import library.gdx.ui.buttons.UITextButton;
+import library.gdx.ui.labels.UILabel;
 import library.gdx.ui.styles.Styles;
 
 public class CameraScreen extends UIScreen implements CameraListener, CameraFrameListener, CameraFaceDetectorListener {
     private Image cameraImage;
+
+    private int maxScore=0;
+    private UILabel scoreLabel;
     private CameraController cameraController;
     private Texture previewTexture;
     private TextureRegion previewRegion;
@@ -44,33 +49,58 @@ public class CameraScreen extends UIScreen implements CameraListener, CameraFram
         mainTable.add(cameraImage).width(imageSize).height(imageSize);
         mainTable.row();
 
+        scoreLabel=new UILabel("",Styles.label.medium);
+        mainTable.add(scoreLabel).pad(4*density);
+        mainTable.row();
+
+        Table buttonTable=new Table();
 
         UITextButton cameraButton=new UITextButton("Capture", Styles.button.contained);
+        UITextButton closeCamera=new UITextButton("Stop",Styles.button.text);
 
-        mainTable.add(cameraButton);
+        buttonTable.add(cameraButton).uniform().padRight(sidePad);
+        buttonTable.add(closeCamera).uniform().padLeft(sidePad);
 
-        try {
-            cameraController=CameraController.getInstance();
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+        mainTable.add(buttonTable);
+
+
 
 
         cameraButton.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 event.handle();
+                Gdx.app.error("CameraScreen","Capture Button Clicked");
                 permissionHandler.requestPermission(Permission.Camera, new PermissionHandler.ResultListener() {
                     @Override
                     public void onResult(Permission permission, PermissionResult result) {
                         if (result==PermissionResult.Granted){
+                            try {
+                                cameraController=CameraController.getInstance();
+                            }catch (Exception e){
+                                Gdx.app.error("Exception",e.getMessage());
+                                e.printStackTrace();
+                            }
                             if (cameraController!=null){
                                 cameraController.setCameraListener(CameraScreen.this);
                                 cameraController.openCamera(imageSize,imageSize);
                             }
+                        }else {
+
                         }
                     }
                 });
+            }
+        });
+
+        closeCamera.addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                event.handle();
+                if (cameraController!=null){
+                    cameraController.closeCamera();
+                    cameraController=null;
+                }
             }
         });
 
@@ -118,7 +148,13 @@ public class CameraScreen extends UIScreen implements CameraListener, CameraFram
 
     @Override
     public void onFaceDetected(int score) {
-        deviceHandler.showToast("Face Score"+score);
+        Gdx.app.postRunnable(new Runnable() {
+            @Override
+            public void run() {
+                maxScore=Math.max(score,maxScore);
+                scoreLabel.setText("SCORE : "+score +"\nMAX SCORE : "+maxScore);
+            }
+        });
     }
 
     @Override
@@ -151,5 +187,13 @@ public class CameraScreen extends UIScreen implements CameraListener, CameraFram
             frameRunnable.run();
         }
         frameRunnable=null;
+    }
+
+    @Override
+    public void dispose() {
+        super.dispose();
+        if (cameraController!=null){
+            cameraController.closeCamera();
+        }
     }
 }

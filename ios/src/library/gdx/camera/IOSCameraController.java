@@ -9,6 +9,7 @@ import org.robovm.apple.avfoundation.AVCaptureDevice;
 import org.robovm.apple.avfoundation.AVCaptureDeviceInput;
 import org.robovm.apple.avfoundation.AVCaptureDevicePosition;
 import org.robovm.apple.avfoundation.AVCaptureDeviceType;
+import org.robovm.apple.avfoundation.AVCaptureInput;
 import org.robovm.apple.avfoundation.AVCaptureOutput;
 import org.robovm.apple.avfoundation.AVCaptureSession;
 import org.robovm.apple.avfoundation.AVCaptureSessionPreset;
@@ -97,14 +98,21 @@ public class IOSCameraController extends NSObject implements CoreCameraControlle
 
     @Override
     public boolean openCamera(float width, float height) {
+        Gdx.app.error("IOSCameraController","Open");
+        boolean cameraStarted=false;
         try {
             if (!openCloseLock.tryAcquire(2500,TimeUnit.MILLISECONDS)){
                 throw new RuntimeException("Time out waiting to lock camera opening.");
             }
-           return startCamera((long) width,(long) height);
-        } catch (InterruptedException ignored) {
+           cameraStarted=startCamera((long) width,(long) height);
+        } catch (InterruptedException e) {
+            if (cameraListener!=null){
+                cameraListener.onError(0,e.getMessage());
+            }
+        }finally {
+            openCloseLock.release();
         }
-        return false;
+        return cameraStarted;
     }
 
     private boolean startCamera(long width,long height){
@@ -124,16 +132,10 @@ public class IOSCameraController extends NSObject implements CoreCameraControlle
             AVCaptureDeviceInput input = new AVCaptureDeviceInput(captureDevice);
             captureSession.addInput(input);
         } catch (NSErrorException e) {
-            Gdx.app.error("Exception", e.getMessage());
-            e.printStackTrace();
             return false;
         }
 
         AVCaptureVideoDataOutput videoDataOutput = new AVCaptureVideoDataOutput();
-        AVVideoSettings videoSettings=new AVVideoSettings();
-        videoSettings.setWidth((long) width);
-        videoSettings.setHeight((long) height);
-        videoDataOutput.setVideoSettings(videoSettings);
         videoDataOutput.setAlwaysDiscardsLateVideoFrames(true);
         videoDataOutput.automaticallyConfiguresOutputBufferDimensions();
         videoDataOutput.setSampleBufferDelegate(this, outputQueue);
@@ -155,6 +157,12 @@ public class IOSCameraController extends NSObject implements CoreCameraControlle
     private void clearSession() {
         if (captureSession != null && captureSession.isRunning()) {
             captureSession.stopRunning();
+            for (AVCaptureInput input:captureSession.getInputs()){
+                input.dispose();
+            }
+            for (AVCaptureOutput output:captureSession.getOutputs()){
+                output.dispose();
+            }
             captureSession.dispose();
         }
         captureSession = null;
@@ -200,7 +208,7 @@ public class IOSCameraController extends NSObject implements CoreCameraControlle
                 cgImage.dispose();
                 processingFrame = false;
             } catch (Exception e) {
-                e.printStackTrace();
+                processingFrame = false;
             }
         }
     }
@@ -230,7 +238,6 @@ public class IOSCameraController extends NSObject implements CoreCameraControlle
                 }catch (Exception e){
                     clearDetectionQueue();
                     pixelBuffer.dispose();
-                    e.printStackTrace();
                 }
             }
         });
@@ -249,19 +256,24 @@ public class IOSCameraController extends NSObject implements CoreCameraControlle
     }
 
     private void handleFaceDetectionResults(NSArray<VNFaceObservation> faceObservations,CVPixelBuffer pixelBuffer){
-        if (faceObservations==null || faceObservations.size()==0){
+        if (faceDetectorListener==null || faceObservations==null || faceObservations.size()==0){
             clearDetectionQueue();
             pixelBuffer.dispose();
+            if (faceDetectorListener!=null){
+                faceDetectorListener.onFaceDetected(0);
+            }
             return;
         }
         try {
             VNFaceObservation faceObservation=faceObservations.first();
-            if (faceDetectorListener!=null && faceObservation.getFaceCaptureQuality()!=null){
+            if (faceObservation.getFaceCaptureQuality()!=null){
                 double faceQuality=faceObservation.getFaceCaptureQuality().doubleValue();
-                faceDetectorListener.onFaceDetected((int)(faceQuality*100));
+                faceDetectorListener.onFaceDetected((int)(faceQuality*200));
+            }else {
+                faceDetectorListener.onFaceDetected(0);
             }
-        }catch (Exception e){
-            e.printStackTrace();
+        }catch (Exception ignored){
+
         }
 
         for (VNFaceObservation observation:faceObservations){

@@ -1,5 +1,6 @@
 package library.gdx.ui.screens;
 
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -10,6 +11,9 @@ import library.gdx.SceneManager;
 import library.gdx.ui.buttons.UIButtonGroup;
 import library.gdx.ui.buttons.UITextButton;
 import library.gdx.ui.styles.Styles;
+import library.gdx.ui.widgets.masked.Mask;
+import library.gdx.ui.widgets.masked.MaskedScrollPane;
+import library.gdx.utils.ResourceUtils;
 
 public class HomeScreen extends UIScreen{
     private UIButtonGroup<UITextButton> buttonGroup;
@@ -23,6 +27,7 @@ public class HomeScreen extends UIScreen{
         mainTable.setFillParent(true);
         Table scrollPaneTable=new Table();
         scrollPaneTable.defaults().space(density*2.0f);
+        TextureRegion maskRegion= ResourceUtils.getInstance().uiAssets.findRegion("circle");
         ScrollPane scrollPane=new ScrollPane(scrollPaneTable);
         scrollPane.setScrollingDisabled(true,false);
 
@@ -72,7 +77,7 @@ public class HomeScreen extends UIScreen{
             }
         });
 
-        mainTable.add(scrollPane).expand().fill();
+        mainTable.add(scrollPane);
         stage.addActor(mainTable);
     }
 
