@@ -58,6 +58,7 @@ public class IOSCameraController extends NSObject implements CoreCameraControlle
     private CameraFaceDetectorListener faceDetectorListener;
     private boolean processingFrame = false;
     private boolean detectingFace=false;
+    private boolean stop,paused;
     private Semaphore openCloseLock = new Semaphore(1);
     private DispatchQueue backgroundQueue = DispatchQueue.create("Camera Executor", DispatchQueueAttr.Concurrent());
     private DispatchQueue outputQueue = DispatchQueue.create("Camera Preview", DispatchQueueAttr.Concurrent());
@@ -88,17 +89,16 @@ public class IOSCameraController extends NSObject implements CoreCameraControlle
 
     @Override
     public void onResume() {
-
+        stop=true;
     }
 
     @Override
     public void onPause() {
-
+        paused=true;
     }
 
     @Override
     public boolean openCamera(float width, float height) {
-        Gdx.app.error("IOSCameraController","Open");
         boolean cameraStarted=false;
         try {
             if (!openCloseLock.tryAcquire(2500,TimeUnit.MILLISECONDS)){
@@ -116,6 +116,8 @@ public class IOSCameraController extends NSObject implements CoreCameraControlle
     }
 
     private boolean startCamera(long width,long height){
+        stop=false;
+        paused=false;
         imageOption=new VNImageOption();
         imageOption.set(new NSString(""),new NSString(""));
 
@@ -174,6 +176,7 @@ public class IOSCameraController extends NSObject implements CoreCameraControlle
 
     @Override
     public void closeCamera() {
+        stop=true;
         try {
             openCloseLock.acquire();
             clearSession();
@@ -189,7 +192,7 @@ public class IOSCameraController extends NSObject implements CoreCameraControlle
 
     @Override
     public void didOutputSampleBuffer(AVCaptureOutput output, CMSampleBuffer sampleBuffer, AVCaptureConnection connection) {
-        if (processingFrame || frameListener == null) {
+        if (processingFrame || frameListener == null || stop || paused) {
             sampleBuffer.dispose();
             return;
         }
