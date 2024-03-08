@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/notification_menu_background"
+    android:padding="4dp"
+    >
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal">
+        <TextView
+            android:id="@+id/tv_read"
+            android:padding="4dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Mark as read"
+            android:clickable="true"
+            android:textSize="@dimen/notification_title_text_size"
+            android:textColor="@color/notification_title_color"
+            android:focusable="true" />
+        <ImageView
+            android:id="@+id/iv_check"
+            android:layout_marginLeft="20dp"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:background="@drawable/ic_check"
+            android:visibility="invisible"
+            />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tv_delete"
+        android:padding="4dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Delete"
+        android:clickable="true"
+        android:textSize="@dimen/notification_title_text_size"
+        android:textColor="#FF0000"
+        android:focusable="true" />
+
+</LinearLayout>

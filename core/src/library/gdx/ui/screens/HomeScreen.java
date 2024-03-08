@@ -77,6 +77,13 @@ public class HomeScreen extends UIScreen{
             }
         });
 
+        addButton(scrollPaneTable, "Notifications", new Runnable() {
+            @Override
+            public void run() {
+                deviceHandler.openNotifications();
+            }
+        });
+
         mainTable.add(scrollPane);
         stage.addActor(mainTable);
     }

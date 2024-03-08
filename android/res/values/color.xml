@@ -1,4 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="ic_background_color">#FFFFFFFF</color>
+    <color name="notification_title_color">#FFFFFF</color>
+    <color name="notification_timer_color">#94A3B8</color>
+    <color name="notification_message_color">#99CBD5E1</color>
+    <color name="notification_line_color">#33CBD5E1</color>
+    <color name="notification_action_button_enabled_color">#0D952D</color>
+    <color name="notification_action_button_disabled_color">#515151</color>
+    <color name="notification_action_button_text_color">#FFFFFF</color>
+    <color name="background_color">#051E32</color>
+    <color name="background_menu_color">#2D3A4F</color>
 </resources>

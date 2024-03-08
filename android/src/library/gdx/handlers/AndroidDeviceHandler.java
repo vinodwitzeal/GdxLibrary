@@ -3,6 +3,7 @@ package library.gdx.handlers;
 import android.widget.Toast;
 
 import library.gdx.AndroidLauncher;
+import library.gdx.dialogs.NotificationDialog;
 
 public class AndroidDeviceHandler implements DeviceHandler{
     private AndroidLauncher launcher;
@@ -31,6 +32,16 @@ public class AndroidDeviceHandler implements DeviceHandler{
             @Override
             public void run() {
                 Toast.makeText(launcher, message, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    @Override
+    public void openNotifications() {
+        launcher.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                new NotificationDialog(launcher).show();
             }
         });
     }

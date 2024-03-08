@@ -10,4 +10,13 @@
         <item name="android:windowLayoutInDisplayCutoutMode" tools:ignore="NewApi">shortEdges</item>
         <item name="android:forceDarkAllowed" tools:ignore="NewApi">false</item>
     </style>
+    <style name="FullScreenDialog" parent="android:Theme.Black.NoTitleBar.Fullscreen">
+        <item name="android:colorBackgroundCacheHint">@null</item>
+        <item name="android:windowAnimationStyle">@android:style/Animation</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowLayoutInDisplayCutoutMode" tools:ignore="NewApi">shortEdges</item>
+        <item name="android:forceDarkAllowed" tools:ignore="NewApi">false</item>
+    </style>
 </resources>

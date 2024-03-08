@@ -10,6 +10,8 @@ public interface DeviceHandler {
 
     void changeOrientation(int orientation);
 
+    void openNotifications();
+
     void showToast(String message);
 
     int getAppVersion();
