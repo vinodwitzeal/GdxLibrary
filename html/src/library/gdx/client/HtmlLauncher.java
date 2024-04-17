@@ -4,6 +4,7 @@ import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.backends.gwt.GwtApplication;
 import com.badlogic.gdx.backends.gwt.GwtApplicationConfiguration;
 import library.gdx.SceneManager;
+import library.gdx.handlers.PlatformHandler;
 
 public class HtmlLauncher extends GwtApplication {
 
@@ -17,6 +18,11 @@ public class HtmlLauncher extends GwtApplication {
 
         @Override
         public ApplicationListener createApplicationListener () {
-                return new SceneManager();
+                return new SceneManager(){
+                        @Override
+                        public PlatformHandler createPlatformHandler() {
+                                return null;
+                        }
+                };
         }
 }

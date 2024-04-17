@@ -27,4 +27,9 @@ public class DesktopDeviceHandler implements DeviceHandler{
     public int getAppVersion() {
         return Gdx.app.getVersion();
     }
+
+    @Override
+    public void openNotifications() {
+
+    }
 }

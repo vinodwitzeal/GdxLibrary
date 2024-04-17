@@ -84,6 +84,13 @@ public class HomeScreen extends UIScreen{
             }
         });
 
+        addButton(scrollPaneTable, "Lottie", new Runnable() {
+            @Override
+            public void run() {
+                sceneManager.pushScreen(new LottieScreen(sceneManager));
+            }
+        });
+
         mainTable.add(scrollPane);
         stage.addActor(mainTable);
     }

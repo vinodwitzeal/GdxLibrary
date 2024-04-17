@@ -9,9 +9,10 @@ import java.util.UUID;
 
 @Entity
 public class NotificationEntity {
-    @PrimaryKey
+    @PrimaryKey(autoGenerate = true)
+    public int id;
     @NonNull
-    public String id;
+    public String notificationId;
     @ColumnInfo(name = "title")
     public String title;
     @ColumnInfo(name = "message")

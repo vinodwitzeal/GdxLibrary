@@ -1,20 +1,21 @@
 package library.gdx;
 
 import android.os.Bundle;
+import android.util.Log;
 
 import com.badlogic.gdx.backends.android.AndroidXApplication;
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
 
-import org.webrtc.PeerConnection;
-
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import library.gdx.handlers.AndroidHandler;
 import library.gdx.handlers.PlatformHandler;
-import library.gdx.rooms.DatabaseUtil;
 import library.gdx.rooms.daos.NotificationEntityDao;
 import library.gdx.rooms.dbs.AppDataBase;
+import library.gdx.rooms.dbs.DBCallback;
 import library.gdx.rooms.entities.NotificationEntity;
 
 public class AndroidLauncher extends AndroidXApplication {
@@ -26,21 +27,18 @@ public class AndroidLauncher extends AndroidXApplication {
 		config.useAccelerometer=false;
 		config.useCompass=false;
 		config.useImmersiveMode=true;
-
-		AppDataBase appDataBase=DatabaseUtil.getAppDataBase(getApplicationContext());
-		NotificationEntityDao notificationEntityDao=appDataBase.notificationEntityDao();
-		AppDataBase.databaseWriteExecutor.execute(new Runnable() {
+		AppDataBase.deleteOldNotifications(getApplicationContext(), TimeUnit.DAYS.toMillis(7), new DBCallback<String>() {
 			@Override
-			public void run() {
-				List<NotificationEntity> allNotifications=notificationEntityDao.loadAll();
-				if (allNotifications.isEmpty()){
-					insertNotifications(notificationEntityDao);
-				}
+			public void onCompleted(boolean success, String response) {
+				Log.e("Notifications","Deleted");
+				AppDataBase.addNotifications(getApplicationContext(), getNotifications(), new DBCallback<String>() {
+					@Override
+					public void onCompleted(boolean success, String response) {
+
+					}
+				});
 			}
 		});
-
-
-
 
 		initialize(new SceneManager(){
 			@Override
@@ -50,14 +48,17 @@ public class AndroidLauncher extends AndroidXApplication {
 		}, config);
 	}
 
-	private void insertNotifications(NotificationEntityDao entityDao){
-		for (int i=0;i<10;i++){
+	private List<NotificationEntity> getNotifications(){
+		List<NotificationEntity> notificationEntities=new ArrayList<>();
+		for (int i=0;i<1000;i++){
 			NotificationEntity notificationEntity=new NotificationEntity();
-			notificationEntity.id= UUID.randomUUID().toString();
+			notificationEntity.notificationId= UUID.randomUUID().toString();
 			notificationEntity.title="Title"+System.currentTimeMillis();
 			notificationEntity.message="Message Count"+i+""+System.currentTimeMillis();
 			notificationEntity.action="action";
-			entityDao.insert(notificationEntity);
+			notificationEntity.time=System.currentTimeMillis();
+			notificationEntities.add(notificationEntity);
 		}
+		return notificationEntities;
 	}
 }

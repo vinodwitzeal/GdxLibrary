@@ -63,9 +63,6 @@ public class IOSCameraController extends NSObject implements CoreCameraControlle
     private DispatchQueue backgroundQueue = DispatchQueue.create("Camera Executor", DispatchQueueAttr.Concurrent());
     private DispatchQueue outputQueue = DispatchQueue.create("Camera Preview", DispatchQueueAttr.Concurrent());
 
-    private VNDetectFaceCaptureQualityRequest faceLandmarksRequest;
-    private VNImageRequestHandler imageRequestHandler;
-
     private VNImageOption imageOption;
 
     public IOSCameraController() {
@@ -233,20 +230,20 @@ public class IOSCameraController extends NSObject implements CoreCameraControlle
                     return;
                 }
                 detectingFace=true;
-                faceLandmarksRequest=new VNDetectFaceCaptureQualityRequest();
-                imageRequestHandler=new VNImageRequestHandler(pixelBuffer,imageOption);
+                VNDetectFaceCaptureQualityRequest faceLandmarksRequest=new VNDetectFaceCaptureQualityRequest();
+                VNImageRequestHandler imageRequestHandler=new VNImageRequestHandler(pixelBuffer,imageOption);
                 try {
                     imageRequestHandler.performRequests(new NSArray<>(faceLandmarksRequest));
-                    handleFaceDetectionResults(faceLandmarksRequest.getResults(),pixelBuffer);
+                    handleFaceDetectionResults(imageRequestHandler,faceLandmarksRequest,pixelBuffer);
                 }catch (Exception e){
-                    clearDetectionQueue();
                     pixelBuffer.dispose();
+                    clearDetectionQueue(imageRequestHandler,faceLandmarksRequest);
                 }
             }
         });
     }
 
-    private void clearDetectionQueue(){
+    private void clearDetectionQueue(VNImageRequestHandler imageRequestHandler,VNDetectFaceCaptureQualityRequest faceLandmarksRequest){
         detectingFace=false;
         if (imageRequestHandler!=null) {
             imageRequestHandler.dispose();
@@ -254,13 +251,12 @@ public class IOSCameraController extends NSObject implements CoreCameraControlle
         if (faceLandmarksRequest!=null) {
             faceLandmarksRequest.dispose();
         }
-        imageRequestHandler=null;
-        faceLandmarksRequest=null;
     }
 
-    private void handleFaceDetectionResults(NSArray<VNFaceObservation> faceObservations,CVPixelBuffer pixelBuffer){
-        if (faceDetectorListener==null || faceObservations==null || faceObservations.size()==0){
-            clearDetectionQueue();
+    private void handleFaceDetectionResults(VNImageRequestHandler imageRequestHandler,VNDetectFaceCaptureQualityRequest faceCaptureQualityRequest,CVPixelBuffer pixelBuffer){
+        NSArray<VNFaceObservation> faceObservations=faceCaptureQualityRequest.getInputFaceObservations();
+        if (faceDetectorListener==null || faceObservations==null || faceObservations.isEmpty()){
+            clearDetectionQueue(imageRequestHandler,faceCaptureQualityRequest);
             pixelBuffer.dispose();
             if (faceDetectorListener!=null){
                 faceDetectorListener.onFaceDetected(0);
@@ -283,6 +279,6 @@ public class IOSCameraController extends NSObject implements CoreCameraControlle
             observation.dispose();
         }
         pixelBuffer.dispose();
-        clearDetectionQueue();
+        clearDetectionQueue(imageRequestHandler,faceCaptureQualityRequest);
     }
 }

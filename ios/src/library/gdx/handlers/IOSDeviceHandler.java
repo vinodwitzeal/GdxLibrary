@@ -30,6 +30,11 @@ public class IOSDeviceHandler implements DeviceHandler{
     }
 
     @Override
+    public void openNotifications() {
+
+    }
+
+    @Override
     public void showToast(String message) {
         DispatchQueue.getMainQueue().async(new Runnable() {
             @Override

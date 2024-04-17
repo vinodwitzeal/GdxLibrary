@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <dimen name="notification_content_padding">4dp</dimen>
-    <dimen name="notification_title_text_size">16sp</dimen>
-    <dimen name="notification_timer_text_size">10sp</dimen>
-    <dimen name="notification_message_text_size">12sp</dimen>
-    <dimen name="notification_action_button_text_size">8sp</dimen>
-    <dimen name="notification_action_button_radius">8dp</dimen>
-</resources>

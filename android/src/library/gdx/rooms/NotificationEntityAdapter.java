@@ -17,6 +17,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import library.gdx.AndroidLauncher;
 import library.gdx.R;
@@ -63,9 +64,9 @@ public class NotificationEntityAdapter extends RecyclerView.Adapter<Notification
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         private TextView titleText;
-        private TextView messageWrapText,messageExpanded;
+        private TextView messageWrapText,messageExpanded,timeText;
         private Button actionButton;
-        private Button menuButton;
+        private LinearLayout menuButton;
         private boolean expanded;
         private NotificationEntity notificationEntity;
         private AndroidLauncher launcher;
@@ -80,23 +81,11 @@ public class NotificationEntityAdapter extends RecyclerView.Adapter<Notification
             messageWrapText=itemView.findViewById(R.id.tv_message_wrapped);
             messageExpanded=itemView.findViewById(R.id.tv_message_expanded);
             actionButton=itemView.findViewById(R.id.btn_action);
-            menuButton=itemView.findViewById(R.id.iv_menu);
+            menuButton=itemView.findViewById(R.id.ll_menu);
+            timeText=itemView.findViewById(R.id.tv_time);
+
             expanded=false;
-            titleText.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    onNotificationClicked();
-                }
-            });
-
-            messageWrapText.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    onNotificationClicked();
-                }
-            });
-
-            messageExpanded.setOnClickListener(new View.OnClickListener() {
+            itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     onNotificationClicked();
@@ -113,18 +102,19 @@ public class NotificationEntityAdapter extends RecyclerView.Adapter<Notification
         }
 
         private void onNotificationClicked(){
-            expanded=!expanded;
-            onExpanded();
-            if (!notificationEntity.read){
+            if (!notificationEntity.read && !expanded){
                 notificationEntity.read=true;
                 changeReadStatus(false,null,null);
             }
+            expanded=!expanded;
+            onExpanded();
         }
 
         public void setData(NotificationEntity notificationEntity,int position){
             this.notificationEntity=notificationEntity;
             this.position=position;
             titleText.setText(notificationEntity.title);
+            timeText.setText(getTime(notificationEntity.time));
             changeReadStatus(true,null,null);
 //            messageWrapText.setText(notificationEntity.message);
 //            messageExpanded.setText("Expanded"+notificationEntity.message);
@@ -145,10 +135,10 @@ public class NotificationEntityAdapter extends RecyclerView.Adapter<Notification
             }
         }
 
-        public void openMenu(Button menuImage){
-            Context context=new ContextThemeWrapper(menuImage.getContext(),R.style.NotificationMenuStyle);
-            LayoutInflater inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        public void openMenu(LinearLayout menuView){
+            LayoutInflater inflater = (LayoutInflater)launcher.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             View popupView = inflater.inflate(R.layout.layout_notification_menu, null);
+            LinearLayout readLayout=popupView.findViewById(R.id.ll_read);
             TextView textView=popupView.findViewById(R.id.tv_read);
             TextView delete=popupView.findViewById(R.id.tv_delete);
             ImageView imageView=popupView.findViewById(R.id.iv_check);
@@ -161,10 +151,10 @@ public class NotificationEntityAdapter extends RecyclerView.Adapter<Notification
             boolean focusable = true; // lets taps outside the popup also dismiss it
             final PopupWindow popupWindow = new PopupWindow(popupView, width, height, focusable);
 
-            textView.setOnClickListener(new View.OnClickListener() {
+            readLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    notificationEntity.read=!notificationEntity.read;
+                    notificationEntity.read=true;
                     changeReadStatus(false,textView,imageView);
                 }
             });
@@ -188,7 +178,7 @@ public class NotificationEntityAdapter extends RecyclerView.Adapter<Notification
                     });
                 }
             });
-            popupWindow.showAsDropDown(menuImage,-menuImage.getWidth(),-menuImage.getHeight(),Gravity.NO_GRAVITY);
+            popupWindow.showAsDropDown(menuView,-menuView.getWidth(),-menuView.getHeight(),Gravity.NO_GRAVITY);
 
         }
 
@@ -230,6 +220,36 @@ public class NotificationEntityAdapter extends RecyclerView.Adapter<Notification
             }else {
                 titleText.setTextColor(launcher.getResources().getColor(R.color.notification_title_color));
             }
+        }
+
+        private String getTime(long time){
+            long elapsedTime=System.currentTimeMillis()-time;
+            return parseElapsedTime(TimeUnit.MILLISECONDS.toMinutes(elapsedTime));
+        }
+
+        public String parseElapsedTime(long timeLapsedInMinutes) {
+            if (timeLapsedInMinutes < 0)
+                return "Recently";
+
+            if (timeLapsedInMinutes == 0)
+                return "Just Now";
+
+            long days= TimeUnit.MILLISECONDS.toDays(timeLapsedInMinutes);
+
+            int h = (int) (timeLapsedInMinutes / 60);
+            int m = (int) (timeLapsedInMinutes % 60);
+
+            if (h > 0) {
+                if (h >= 24) {
+                    int day = h / 24;
+                    return day + " "+"day ago";
+                } else if (m > 0) {
+                    return h + "h " + m + "m ago";
+                } else {
+                    return h + " h ago";
+                }
+            }
+            return m + " m ago";
         }
     }
 

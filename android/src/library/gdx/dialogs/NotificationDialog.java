@@ -1,25 +1,21 @@
 package library.gdx.dialogs;
 
 import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.view.WindowManager;
-import android.widget.ExpandableListView;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.badlogic.gdx.Gdx;
+import java.util.List;
 
 import library.gdx.AndroidLauncher;
 import library.gdx.R;
-import library.gdx.rooms.DatabaseUtil;
 import library.gdx.rooms.NotificationEntityAdapter;
 import library.gdx.rooms.daos.NotificationEntityDao;
 import library.gdx.rooms.dbs.AppDataBase;
+import library.gdx.rooms.dbs.DBCallback;
+import library.gdx.rooms.entities.NotificationEntity;
 
 public class NotificationDialog extends Dialog implements DialogInterface.OnShowListener {
     private RecyclerView expandableListView;
@@ -40,21 +36,18 @@ public class NotificationDialog extends Dialog implements DialogInterface.OnShow
 
     @Override
     public void onShow(DialogInterface dialog) {
-        NotificationEntityDao notificationEntityDao= DatabaseUtil.getAppDataBase(getContext().getApplicationContext()).notificationEntityDao();
-        AppDataBase.databaseWriteExecutor.execute(new Runnable() {
+        AppDataBase.loadAllNotifications(getContext().getApplicationContext(), new DBCallback<List<NotificationEntity>>() {
             @Override
-            public void run() {
-                NotificationEntityAdapter entityAdapter=new NotificationEntityAdapter(launcher,notificationEntityDao.loadAll());
+            public void onCompleted(boolean success, List<NotificationEntity> response) {
                 launcher.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        NotificationEntityAdapter entityAdapter=new NotificationEntityAdapter(launcher,response);
                         expandableListView.setAdapter(entityAdapter);
                     }
                 });
             }
         });
-
-
     }
 
 

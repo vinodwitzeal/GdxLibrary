@@ -3,92 +3,90 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="@dimen/notification_content_padding"
-    android:baselineAligned="false">
+    android:padding="@dimen/_4sdp"
+    android:background="@drawable/notification_item_background"
+    android:layout_margin="@dimen/_4sdp">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:weightSum="1"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="16dp"
-        android:orientation="horizontal">
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:weightSum="1">
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="0dp"
+            android:layout_weight="0.85"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:textColor="@color/notification_title_color"
+            android:text="Title Text"
+            android:textSize="@dimen/_14sdp"
+            android:textStyle="bold" />
         <LinearLayout
+            android:id="@+id/ll_menu"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="0.9"
-            android:orientation="vertical">
-            <TextView
-                android:id="@+id/tv_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/notification_title_color"
-                android:text="Title Text"
-                android:textSize="@dimen/notification_title_text_size"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/tv_message_wrapped"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:ellipsize="end"
-                android:singleLine="true"
-                android:textColor="@color/notification_message_color"
-                android:text="this is simple notification message for android,this is simple notification message for android,this is simple notification message for android,this is simple notification message for android"
-                android:textSize="@dimen/notification_message_text_size"
-                android:textStyle="normal"
-                android:visibility="visible" />
-
-            <TextView
-                android:id="@+id/tv_message_expanded"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:singleLine="false"
-                android:textColor="@color/notification_message_color"
-                android:text="this is simple notification message for android,this is simple notification message for android,this is simple notification message for android,this is simple notification message for androidthis is simple notification message for android"
-                android:textSize="@dimen/notification_message_text_size"
-                android:visibility="gone"
-                android:textStyle="normal" />
-
-            <Button
-                android:id="@+id/btn_action"
-                android:layout_width="wrap_content"
-                android:layout_height="24dp"
-                android:background="@drawable/notification_button_green"
-                android:layout_marginTop="@dimen/notification_content_padding"
-                android:textColor="@color/notification_action_button_text_color"
-                android:text="Action Button"
-                android:paddingStart="@dimen/notification_content_padding"
-                android:paddingEnd="@dimen/notification_content_padding"
-                android:visibility="gone"
-                android:textSize="@dimen/notification_action_button_text_size"
-                android:textStyle="bold" />
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.1"
+            android:layout_weight="0.15"
             android:gravity="center"
+            android:clickable="true"
+            android:focusable="true"
+            android:textAlignment="center"
             android:orientation="vertical">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/tv_time"
-                android:text="15h"
+                android:text="2343 days ago"
+                android:gravity="center"
+                android:textStyle="italic"
                 android:textColor="@color/notification_timer_color"
-                android:textSize="@dimen/notification_timer_text_size"/>
-            <Button
-                android:layout_width="20dp"
-                android:layout_height="20dp"
+                android:textSize="@dimen/_10sdp"/>
+            <ImageView
+                android:layout_width="@dimen/_20sdp"
+                android:layout_height="@dimen/_20sdp"
                 android:id="@+id/iv_menu"
+                android:adjustViewBounds="true"
                 android:background="@drawable/notification_menu" />
         </LinearLayout>
     </LinearLayout>
 
-    <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/notification_line_color"/>
 
+    <TextView
+        android:id="@+id/tv_message_wrapped"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:singleLine="true"
+        android:textColor="@color/notification_message_color"
+        android:text="this is simple notification message for android,this is simple notification message for android,this is simple notification message for android,this is simple notification message for android"
+        android:textSize="@dimen/_12sdp"
+        android:textStyle="normal"
+        android:visibility="visible" />
+
+    <TextView
+        android:id="@+id/tv_message_expanded"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:singleLine="false"
+        android:textColor="@color/notification_message_color"
+        android:text="this is simple notification message for android,this is simple notification message for android,this is simple notification message for android,this is simple notification message for androidthis is simple notification message for android"
+        android:textSize="@dimen/_12sdp"
+        android:textAlignment="viewStart"
+        android:gravity="start"
+        android:visibility="visible"
+        android:textStyle="normal" />
+    <Button
+        android:id="@+id/btn_action"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/_24sdp"
+        android:background="@drawable/notification_button_green"
+        android:layout_marginTop="@dimen/_6sdp"
+        android:textColor="@color/notification_action_button_text_color"
+        android:text="Action Button"
+        android:paddingStart="@dimen/_8sdp"
+        android:paddingEnd="@dimen/_8sdp"
+        android:visibility="visible"
+        android:textSize="@dimen/_10sdp"
+        android:textStyle="bold" />
 
 </LinearLayout>
